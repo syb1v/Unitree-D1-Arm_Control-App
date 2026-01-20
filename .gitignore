@@ -1,0 +1,173 @@
+# ============================================
+# Build артефакты
+# ============================================
+
+# CMake
+**/build/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+*.cmake
+!CMakeLists.txt
+
+# Скомпилированные файлы
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Qt MOC/UIC/RCC
+*_autogen/
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*.moc
+
+# ============================================
+# IDE и редакторы
+# ============================================
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.*
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains (CLion, etc.)
+.idea/
+cmake-build-*/
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.creator.user
+*.creator.user.*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+
+# ============================================
+# Зависимости
+# ============================================
+
+# Загруженные SDK и библиотеки
+.deps/
+
+# Node (если используется для документации)
+node_modules/
+
+# Python (если используется для скриптов)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+
+# ============================================
+# Системные файлы
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Логи и временные файлы
+# ============================================
+
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.backup
+*.cache
+
+# CycloneDDS
+cyclonedds.xml
+
+# ============================================
+# Конфигурации (персональные)
+# ============================================
+
+# Локальные настройки
+*.local
+config.local.*
+.env
+.env.*
+
+# ============================================
+# Документация (сгенерированная)
+# ============================================
+
+# Doxygen
+docs/html/
+docs/latex/
+docs/man/
+
+# ============================================
+# Другое
+# ============================================
+
+# Архивы
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Бэкапы баз данных
+*.sql
+*.sqlite
+
+# Poses и recordings (пользовательские данные)
+# Раскомментируйте если не хотите хранить в репозитории:
+# poses/
+# recordings/
