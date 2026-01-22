@@ -7,6 +7,7 @@
 #include <QScreen>
 #include <QDebug>
 #include <QDateTime>
+#include <QLabel>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -47,6 +48,16 @@ MainWindow::MainWindow(QWidget* parent)
     m_uiUpdateTimer->setInterval(50);  // 20 FPS
     connect(m_uiUpdateTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);
     m_uiUpdateTimer->start();
+
+    // --- ВОТЕРМАРКА АВТОРА ---
+    QLabel* watermarkLabel = new QLabel(this);
+    // Используем HTML для ссылки и стилизации
+    watermarkLabel->setText("<a href='https://t.me/v_work' style='color: grey; text-decoration: none;'>Dev: syb1v</a>");
+    watermarkLabel->setOpenExternalLinks(true); // Разрешаем кликать по ссылке
+    watermarkLabel->setToolTip("Перейти в Telegram канал автора");
+    watermarkLabel->setContentsMargins(0, 0, 10, 0); // Отступ справа
+    statusBar()->addPermanentWidget(watermarkLabel);
+    // -------------------------
     
     updateWindowTitle();
     
@@ -745,27 +756,18 @@ void MainWindow::onAbout() {
     QMessageBox::about(this, "О программе",
                        "<h2>Unitree D1 Control</h2>"
                        "<p>Версия 1.0.0</p>"
-                       "<p>Приложение для управления роботизированной рукой Unitree D1-550.</p>"
+                       "<p>Автор: <b>syb1v</b></p>"
+                       "<p>🌐 GitHub: <a href='https://github.com/syb1v'>syb1v</a></p>"
+                       "<p>✈️ Telegram: <a href='https://t.me/v_work'>@v_work</a></p>"
+                       "<hr>"
+                       "<p>Приложение для управления роботизированной рукой Unitree D1.</p>"
                        "<p><b>Функции:</b></p>"
                        "<ul>"
-                       "<li>Управление суставами (Forward Kinematics)</li>"
-                       "<li>Калибровка и настройка лимитов</li>"
-                       "<li>Сохранение и загрузка поз</li>"
-                       "<li>Запись и воспроизведение движений</li>"
-                       "<li>Аварийная остановка (Escape)</li>"
+                       "<li>🎮 Управление суставами (Forward Kinematics)</li>"
+                       "<li>📐 Калибровка и настройка лимитов</li>"
+                       "<li>💾 Сохранение и загрузка поз</li>"
+                       "<li>▶️ Запись и воспроизведение движений</li>"
+                       "<li>🛑 Аварийная остановка (Escape)</li>"
                        "</ul>"
-                       "<p><b>Горячие клавиши:</b></p>"
-                       "<ul>"
-                       "<li><b>Escape</b> - аварийная остановка</li>"
-                       "<li><b>Home</b> - домашняя позиция</li>"
-                       "<li><b>Ctrl+S</b> - сохранить конфигурацию</li>"
-                       "<li><b>Ctrl+O</b> - загрузить конфигурацию</li>"
-                       "</ul>"
-                       "<p><b>Требования:</b></p>"
-                       "<ul>"
-                       "<li>Unitree D1-550 робо- рука</li>"
-                       "<li>udp_relay должен быть запущен</li>"
-                       "<li>Настроенный сетевой интерфейс</li>"
-                       "</ul>"
-                       "<p>© 2024-2025</p>");
+                       "<p>© 2026 syb1v. Распространяется под лицензией MIT.</p>");
 }
