@@ -45,6 +45,57 @@ pkill -9 -f udp_relay 2>/dev/null
 pkill -9 -f D1Control 2>/dev/null
 sleep 1
 
+# Автогенерация cyclonedds.xml при первом запуске
+if [ ! -f "$CYCLONE_CFG" ]; then
+    echo "cyclonedds.xml не найден, генерируем..."
+    IFACE=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | grep -E '^(enx|eth|enp|eno)' | grep -v 'lo' | head -n 1)
+    if [ -n "$IFACE" ]; then
+        IFACE_LINE="<NetworkInterface name=\"$IFACE\" />"
+        echo "  Интерфейс: $IFACE"
+    else
+        IFACE_LINE='<NetworkInterface autodetermine="true" priority="default" multicast="default" />'
+        echo "  Интерфейс: автоопределение"
+    fi
+    mkdir -p "$(dirname "$CYCLONE_CFG")"
+    cat > "$CYCLONE_CFG" << XMLEOF
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://cdds.io/config https://cyclonedds.io/docs/cyclonedds/latest/config/cyclonedds.xsd">
+    <Domain id="any">
+        <General>
+            <Interfaces>
+                $IFACE_LINE
+            </Interfaces>
+            <AllowMulticast>true</AllowMulticast>
+        </General>
+        <Discovery>
+            <ParticipantIndex>auto</ParticipantIndex>
+            <MaxAutoParticipantIndex>100</MaxAutoParticipantIndex>
+            <SPDPInterval>100ms</SPDPInterval>
+            <LeaseDuration>10s</LeaseDuration>
+            <Peers>
+                <Peer Address="192.168.123.100"/>
+                <Peer Address="192.168.123.161"/>
+                <Peer Address="127.0.0.1"/>
+            </Peers>
+        </Discovery>
+        <Internal>
+            <HeartbeatInterval min="5ms" minsched="10ms" max="500ms">50ms</HeartbeatInterval>
+            <AckDelay>5ms</AckDelay>
+            <NackDelay>10ms</NackDelay>
+            <DeliveryQueueMaxSamples>2048</DeliveryQueueMaxSamples>
+            <WriterLingerDuration>100ms</WriterLingerDuration>
+        </Internal>
+        <Tracing>
+            <Verbosity>warning</Verbosity>
+        </Tracing>
+    </Domain>
+</CycloneDDS>
+XMLEOF
+    echo "  ✓ cyclonedds.xml создан: $CYCLONE_CFG"
+fi
+
 # Экспортируем конфиг CycloneDDS - КРИТИЧЕСКИ ВАЖНО!
 if [ -f "$CYCLONE_CFG" ]; then
     export CYCLONEDDS_URI="file://$CYCLONE_CFG"

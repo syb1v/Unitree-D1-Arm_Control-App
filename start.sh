@@ -21,6 +21,10 @@ echo -e "${BLUE}============================================${NC}"
 echo -e "${BLUE}     UNITREE D1 - Control System           ${NC}"
 echo -e "${BLUE}============================================${NC}"
 
+# Настройки робота
+export UNITREE_ADDRESS="1"       # Робот отвечает на адрес 1 (проверено диагностикой)
+export UNITREE_SKIP_JOINTS="2"   # Пропуск неисправного 3-го сустава (ID 2)
+
 # Проверка наличия udp_relay
 if [ ! -f "$SDK_BUILD/udp_relay" ]; then
     echo -e "${RED}ОШИБКА: udp_relay не найден!${NC}"
