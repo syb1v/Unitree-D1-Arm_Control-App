@@ -8,6 +8,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 UDP_RELAY="$PROJECT_DIR/d1_sdk/build/udp_relay"
 GUI_APP="$SCRIPT_DIR/build/D1Control"
 CYCLONE_CFG="$PROJECT_DIR/d1_sdk/build/cyclonedds.xml"
+UNITREE_ROBOT_IP="${UNITREE_ROBOT_IP:-192.168.123.100}"   # IP руки для peer'ов DDS
 
 echo "============================================"
 echo "   Запуск системы управления Unitree D1"
@@ -75,8 +76,7 @@ if [ ! -f "$CYCLONE_CFG" ]; then
             <SPDPInterval>100ms</SPDPInterval>
             <LeaseDuration>10s</LeaseDuration>
             <Peers>
-                <Peer Address="192.168.123.100"/>
-                <Peer Address="192.168.123.161"/>
+                <Peer Address="$UNITREE_ROBOT_IP"/>
                 <Peer Address="127.0.0.1"/>
             </Peers>
         </Discovery>

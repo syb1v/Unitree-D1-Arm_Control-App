@@ -24,6 +24,7 @@ echo -e "${BLUE}============================================${NC}"
 # Настройки робота
 export UNITREE_ADDRESS="1"       # Робот отвечает на адрес 1 (проверено диагностикой)
 export UNITREE_SKIP_JOINTS="2"   # Пропуск неисправного 3-го сустава (ID 2)
+export UNITREE_ROBOT_IP="${UNITREE_ROBOT_IP:-192.168.123.100}"  # IP руки для peer'ов DDS
 
 # Проверка наличия udp_relay
 if [ ! -f "$SDK_BUILD/udp_relay" ]; then
@@ -105,9 +106,7 @@ cat > "$SDK_BUILD/cyclonedds.xml" << EOF
             <LeaseDuration>10s</LeaseDuration>
             
             <Peers>
-                <Peer Address="192.168.123.100"/> <!-- Возможный адрес -->
-                <Peer Address="192.168.123.161"/> <!-- Стандартный адрес D1 -->
-                <Peer Address="192.168.123.10"/>  <!-- Unitree Go1/B1 -->
+                <Peer Address="$UNITREE_ROBOT_IP"/> <!-- IP руки (UNITREE_ROBOT_IP) -->
                 <Peer Address="127.0.0.1"/>
             </Peers>
         </Discovery>
