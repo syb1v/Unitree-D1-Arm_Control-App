@@ -46,7 +46,7 @@ fi
 # 1. Поиск интерфейса
 # Ищем интерфейс, начинающийся на enx или eth (обычно USB адаптеры)
 # Используем awk чтобы взять только имя интерфейса, затем grep по началу строки
-INTERFACE=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(enx|eth)' | grep -v 'lo' | head -n 1)
+INTERFACE=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | grep -E '^(enx|eth|enp|eno)' | grep -v '^lo$' | head -n 1 || true)
 
 if [ -z "$INTERFACE" ]; then
     echo -e "${YELLOW}ВНИМАНИЕ: Сетевой интерфейс Ethernet/USB не найден!${NC}"
@@ -56,17 +56,17 @@ else
     echo -e "${GREEN}Найден интерфейс: $INTERFACE${NC}"
     
     # 2. Проверка IP адреса
-    IP_ADDR=$(ip -4 addr show $INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+    IP_ADDR=$(ip -4 addr show "$INTERFACE" | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || true)
     
     if [ -z "$IP_ADDR" ]; then
         echo -e "${RED}ОШИБКА: На интерфейсе $INTERFACE нет IP адреса!${NC}"
         echo -e "${YELLOW}DDS требует IPv4 для работы.${NC}"
-        echo "Пожалуйста, настройте статический IP (например, 192.168.123.162):"
-        echo "  sudo ip addr add 192.168.123.162/24 dev $INTERFACE"
+        echo "Пожалуйста, настройте статический IP (например, 192.168.123.10):"
+        echo "  sudo ip addr add 192.168.123.10/24 dev $INTERFACE"
         echo "Или настройте через настройки сети системы."
         
         # Предлагаем попробовать продолжить (на случай если IPv6 работает, хотя вряд ли)
-        read -p "Продолжить без IP? (y/N) " -n 1 -r
+        read -p "Продолжить без IP? (y/N) " -n 1 -r || true
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             exit 1

@@ -268,9 +268,10 @@ install_system_packages() {
     print_header "Установка системных пакетов"
     
     local os=$(detect_os)
+    local do_update="${1:-}"
     
     if [ "$os" = "linux" ]; then
-        install_linux_packages
+        install_linux_packages "$do_update"
     elif [ "$os" = "macos" ]; then
         install_macos_packages
     else
@@ -280,31 +281,75 @@ install_system_packages() {
 }
 
 install_linux_packages() {
-    local packages=(
-        "git"
-        "cmake"
-        "build-essential"
-        "g++"
-        "qtbase5-dev"
-        "qt5-qmake"
-        "libqt5network5"
-        "libqt5widgets5"
-        "iproute2"
-        "iputils-ping"
-    )
+    local do_update="${1:-}"
+    local pkg_mgr=""
     
-    print_info "Обновление списка пакетов..."
-    sudo apt update -qq 2>/dev/null || sudo apt-get update -qq 2>/dev/null
+    if command -v pacman &> /dev/null; then
+        pkg_mgr="pacman"
+    elif command -v apt-get &> /dev/null; then
+        pkg_mgr="apt"
+    fi
     
-    for pkg in "${packages[@]}"; do
-        if dpkg -s "$pkg" &> /dev/null; then
-            print_status "$pkg уже установлен"
-        else
-            print_info "Установка $pkg..."
-            sudo apt install -y "$pkg" 2>/dev/null || sudo apt-get install -y "$pkg" 2>/dev/null
-            print_status "$pkg установлен"
-        fi
-    done
+    case "$pkg_mgr" in
+        pacman)
+            local packages=(
+                "git"
+                "cmake"
+                "base-devel"
+                "qt5-base"
+                "iproute2"
+                "iputils"
+            )
+            
+            if [ "$do_update" = "--update" ]; then
+                print_info "Обновление базы пакетов (pacman -Sy)..."
+                sudo pacman -Sy --noconfirm
+            else
+                print_info "Обновление пакетов пропущено (включить: --update)"
+            fi
+            
+            print_info "Установка: ${packages[*]}"
+            sudo pacman -S --needed --noconfirm "${packages[@]}"
+            ;;
+        apt)
+            local packages=(
+                "git"
+                "cmake"
+                "build-essential"
+                "g++"
+                "qtbase5-dev"
+                "qt5-qmake"
+                "libqt5network5"
+                "libqt5widgets5"
+                "iproute2"
+                "iputils-ping"
+            )
+            
+            if [ "$do_update" = "--update" ]; then
+                print_info "Обновление списка пакетов (apt update)..."
+                sudo apt update -qq 2>/dev/null || sudo apt-get update -qq 2>/dev/null
+            else
+                print_info "Обновление списка пакетов пропущено (включить: --update)"
+            fi
+            
+            for pkg in "${packages[@]}"; do
+                if dpkg -s "$pkg" &> /dev/null; then
+                    print_status "$pkg уже установлен"
+                else
+                    print_info "Установка $pkg..."
+                    sudo apt install -y "$pkg" 2>/dev/null || sudo apt-get install -y "$pkg" || print_warning "Не удалось установить $pkg"
+                    print_status "$pkg установлен"
+                fi
+            done
+            ;;
+        *)
+            print_warning "Пакетный менеджер не определён — установка пакетов пропущена"
+            print_info "Установите вручную: git, cmake, Qt5 (dev), компилятор C++"
+            return 0
+            ;;
+    esac
+    
+    print_status "Системные пакеты готовы"
 }
 
 install_macos_packages() {
@@ -686,6 +731,8 @@ show_help() {
     echo ""
     echo "Опции установки:"
     echo "  (без опций)     Полная установка (зависимости + сборка + сеть)"
+    echo "  --update        Обновить базы пакетов перед установкой"
+    echo "                  (по умолчанию пакеты НЕ обновляются)"
     echo "  --clean         Полная пересборка (очистка build директорий)"
     echo "  --deps-only     Установить только зависимости (без сборки)"
     echo "  --build-only    Только сборка (без установки зависимостей)"
@@ -716,6 +763,7 @@ main() {
     local verify_only=false
     local network_only=false
     local network_help=false
+    local update_pkgs=""
     
     # Парсинг аргументов
     while [[ $# -gt 0 ]]; do
@@ -746,6 +794,10 @@ main() {
                 ;;
             --network-help)
                 network_help=true
+                shift
+                ;;
+            --update)
+                update_pkgs="--update"
                 shift
                 ;;
             *)
@@ -792,7 +844,7 @@ main() {
     check_sudo
     
     if ! $build_only; then
-        install_system_packages
+        install_system_packages "$update_pkgs"
         install_unitree_sdk || true
         configure_network || true
     fi
